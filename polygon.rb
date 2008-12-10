@@ -1,22 +1,26 @@
 
 class Polygon
 
+  attr :draw
+
+  VERT_COUNT = 8
+
   def random_vert
-    rand * 2 - 1
+    rand * 2.0 - 1.0
   end
 
   def initialize
-    @verts = Array.new(4) { [random_vert, random_vert] }
-    @color = Array.new(4) { rand }
+    starting = [random_vert, random_vert]
+    @verts = Array.new(VERT_COUNT) { [starting[0], starting[1]] }
+    @color = Array.new(3) { rand }
   end
 
   def draw
-    glColor4f(*@color)
+    glColor4f(@color[0], @color[1], @color[2], 0.5)
     glBegin(GL_POLYGON)
-  	glVertex(*@verts[0])
-  	glVertex(*@verts[1])
-  	glVertex(*@verts[2])
-  	glVertex(*@verts[3])
+    @verts.each do |v|
+    	glVertex(*v)
+    end
   	glEnd
 	end
 	
@@ -26,13 +30,13 @@ class Polygon
 	
 	def mutate!
     @verts.each do |v|
-      v[0] += mutation(0.25)
+      v[0] += mutation(0.05)
       v[0] = ensure_bound(v[0],-1.0, 1.0)
-      v[1] += mutation(0.25)
+      v[1] += mutation(0.05)
       v[1] = ensure_bound(v[1],-1.0, 1.0)
     end
     @color = @color.collect do |c|
-      c += mutation(0.25)
+      c += mutation(0.1)
       ensure_bound(c, 0.0, 1.0)
     end
 	end

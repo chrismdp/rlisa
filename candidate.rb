@@ -1,6 +1,7 @@
 class Candidate
   
   attr :polygons
+  attr :difference, true
   
   protected :polygons
   
@@ -21,8 +22,9 @@ class Candidate
   end
   
   def mutate!
+    @difference = nil
     # mutate 10% on average
-    @polygons.each { |p| p.mutate! if rand < 0.1 }
+    @polygons.each { |p| p.mutate! if rand < 0.05 }
     self
   end
   

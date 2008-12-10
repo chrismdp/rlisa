@@ -13,15 +13,19 @@ end
 
 class GAPolygon
 
+  CHILDREN_COUNT = 15
+  PARENT_COUNT = 5
+
   attr_accessor :width, :height
 
   def initialize(file)
     @source_image = Magick::Image.read(file).first
     @width = @source_image.columns
     @height = @source_image.rows
-    @candidate = Candidate.new
+    @candidates = Array.new(PARENT_COUNT) { Candidate.new }
     @displayed_candidate = @candidate
     @count = 0
+    @start_time = Time.now.utc.to_i
     setup_next_iteration
   end
   
@@ -41,7 +45,7 @@ class GAPolygon
   end
 
   def write
-    file = "image_#{@count}.png"
+    file = "#{@start_time}_image_#{@count}.png"
     raster_image.write(file)
     puts "Written image #{file}"
   end
@@ -56,29 +60,33 @@ class GAPolygon
   end
   
   def finish_iteration
-    min = 1000000.0
-    min_idx = 0
-    @differences.each_with_index do |d, idx|
-      if d < min
-        min = d
-        min_idx = idx
-      end
-    end
-    @candidate = @candidates[min_idx]
+    sorted = @candidates.sort_by {|c| c.difference }
+    @candidates = sorted[0..PARENT_COUNT-1]
+    @candidates << sorted[8] # Pick something bad also, just in case
     @count += 1
-    puts "#{@count} :: #{min}"
+    puts "#{@count} :: #{sorted.first.difference}" if @count % 100 == 0
+    write if @count % 1000 == 0
   end
   
   def setup_next_iteration
-    @candidates = [@candidate]
-    10.times { @candidates << @candidate.mutation! }
-    @differences = []
+    idx = 0
+    while @candidates.size < CHILDREN_COUNT do
+      idx += 1
+      @candidates << @candidates[idx % PARENT_COUNT].mutation!
+    end
+    # @candidates.each {|c| c.mutate! }
   end
   
   def iterate
-    next_to_do = @differences.size
-    @differences << difference_for(@candidates[next_to_do])
-    if (@differences.size == @candidates.size)
+    done_something = false
+    @candidates.each do |c|
+      if c.difference.nil?
+        c.difference = difference_for(c)
+        done_something = true
+        break
+      end
+    end
+    unless done_something
       finish_iteration
       setup_next_iteration
     end
@@ -97,7 +105,7 @@ keyboard = lambda do |key, x, y|
 	case (key)
 		when ?\e
   		exit(0);
-  	when ?\r
+  	when ?w
   	  @ga.write
 	end
 end
