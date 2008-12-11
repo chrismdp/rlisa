@@ -6,7 +6,7 @@ class Candidate
   attr :genestring
   
   POLYGONS = 50
-  VERTEX_COUNT = 3
+  VERTEX_COUNT = 8
   POLYGON_LENGTH = VERTEX_COUNT * 2 + 4
   
   def initialize(genestring = nil)
