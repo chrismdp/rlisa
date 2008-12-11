@@ -24,7 +24,7 @@ class GAPolygon
     @candidates = Array.new(POPULATION) { Candidate.new }
     @displayed_candidate = @candidate
     @count = 0
-    @start_time = Time.now.utc.to_i
+    @start_time = formatted_time_now
     setup_next_iteration
   end
   
@@ -38,7 +38,7 @@ class GAPolygon
   end
 
   def write
-    file = "#{@start_time}_image_#{@count}.png"
+    file = "#{@start_time}_#{formatted_time_now}_image_#{@count}.png"
     raster_image.write(file)
     puts "Written image #{file}"
   end
@@ -89,6 +89,11 @@ class GAPolygon
       setup_next_iteration
     end
   end
+  
+  def formatted_time_now
+    Time.now.utc.strftime('%Y%m%d%H%M%S')
+  end
+  
 end
 
 @ga = GAPolygon.new(ARGV[0])
