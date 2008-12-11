@@ -30,7 +30,7 @@ class Candidate
     start = ((rand * mum.genestring.size).to_i / (POLYGON_LENGTH*2)).to_i * POLYGON_LENGTH
     genes[start,genes.size/2] = dad.genestring[start,genes.size/2]
     baby = Candidate.new(genes)
-      10.times { baby.mutate! }
+      2.times { baby.mutate! }
     baby
   end
     
@@ -39,7 +39,7 @@ class Candidate
     seed = (rand * @genestring.size).to_i
     20.times do |x|
       gene_to_mutate = (seed + x) % @genestring.size
-      @genestring[gene_to_mutate] += (rand * 0.02) - 0.01
+      @genestring[gene_to_mutate] += (rand * 0.05) - 0.025
       @genestring[gene_to_mutate].ensure_bound(0.0, 1.0)
     end
     self
