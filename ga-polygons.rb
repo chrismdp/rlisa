@@ -12,7 +12,7 @@ end
 
 class GAPolygon
 
-  POPULATION = 50
+  POPULATION = 10
   NUMBER_TO_KEEP = 2
   NUKE_EVERY = 100
 
@@ -23,7 +23,6 @@ class GAPolygon
     @width = @source_image.columns
     @height = @source_image.rows
     @candidates = Array.new(POPULATION) { Candidate.new }
-    @displayed_candidate = @candidate
     @count = 0
     @start_time = formatted_time_now
     setup_next_iteration
@@ -45,7 +44,7 @@ class GAPolygon
   end
 
   def difference
-    raster_image.difference(@source_image)[0]
+    raster_image.difference(@source_image)[1]
   end	
   
   def difference_for(c)
@@ -56,8 +55,8 @@ class GAPolygon
   def finish_iteration
     @candidates = @candidates.sort_by {|c| c.difference }
     @count += 1
-    nuke! if @count % NUKE_EVERY == 0
 
+    nuke! if @count > 0 && @count % NUKE_EVERY == 0
     puts "#{@count} :: #{@candidates.first.difference} :: #{@candidates.size}" if @count % 10 == 0
     write if @count % 1000 == 0
     @candidates.first.draw
@@ -65,7 +64,9 @@ class GAPolygon
   end
 
   def nuke!
-    @candidates[POPULATION/2..-1] = Candidate.new
+    Range.new((@candidates.size*0.75).to_i, @candidates.size).each do |x|
+      @candidates[x] = Candidate.new { rand }
+    end
   end
   
   def setup_next_iteration
@@ -73,8 +74,8 @@ class GAPolygon
     size = @candidates.size
     candidates = []
     POPULATION.times do
-      x = (Math.log(rand*0.5+1.0) * size/1.5).to_i
-      y = (Math.log(rand*0.5+1.0) * size/1.5).to_i
+      x = (Math.log(rand+1.0) * size).to_i
+      y = (Math.log(rand+1.0) * size).to_i
       candidates << Candidate.procreate(@candidates[x], @candidates[y])
     end
     # Allow first few to be cloned to the next generation

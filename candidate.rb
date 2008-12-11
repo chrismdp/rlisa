@@ -1,5 +1,11 @@
 require "enumerator"
 
+class Float
+ def ensure_bound(min, max)
+   [[self, min].max, max].min
+ end
+end
+
 class Candidate
   
   attr :difference, true
@@ -9,11 +15,12 @@ class Candidate
   VERTEX_COUNT = 8
   POLYGON_LENGTH = VERTEX_COUNT * 2 + 4
   
-  def initialize(genestring = nil)
+  def initialize(genestring = nil, &block)
+    block ||= lambda { 0.5 }
     if genestring
       @genestring = genestring.dup
     else 
-      @genestring = Array.new(POLYGONS * POLYGON_LENGTH) { rand }
+      @genestring = Array.new(POLYGONS * POLYGON_LENGTH, &block)
     end
   end
   
@@ -29,8 +36,12 @@ class Candidate
     
   def mutate!
     @difference = nil
-    gene_to_mutate = (rand * @genestring.size).to_i
-    @genestring[gene_to_mutate] = rand
+    seed = (rand * @genestring.size).to_i
+    20.times do |x|
+      gene_to_mutate = (seed + x) % @genestring.size
+      @genestring[gene_to_mutate] += (rand * 0.02) - 0.01
+      @genestring[gene_to_mutate].ensure_bound(0.0, 1.0)
+    end
     self
   end
   
@@ -47,5 +58,6 @@ class Candidate
     	glEnd
     end
   end
+  
 end
   
