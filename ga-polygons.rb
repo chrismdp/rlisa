@@ -14,6 +14,7 @@ class GAPolygon
 
   POPULATION = 50
   NUMBER_TO_KEEP = 2
+  NUKE_EVERY = 100
 
   attr_accessor :width, :height
 
@@ -55,10 +56,16 @@ class GAPolygon
   def finish_iteration
     @candidates = @candidates.sort_by {|c| c.difference }
     @count += 1
+    nuke! if @count % NUKE_EVERY == 0
+
     puts "#{@count} :: #{@candidates.first.difference} :: #{@candidates.size}" if @count % 10 == 0
     write if @count % 1000 == 0
     @candidates.first.draw
     glFlush
+  end
+
+  def nuke!
+    @candidates[POPULATION/2..-1] = Candidate.new
   end
   
   def setup_next_iteration
