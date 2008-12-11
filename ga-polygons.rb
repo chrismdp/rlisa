@@ -12,8 +12,8 @@ end
 
 class GAPolygon
 
-  POPULATION = 10
-  NUMBER_TO_KEEP = 2
+  POPULATION = 50
+  NUMBER_TO_KEEP = 5
   NUKE_EVERY = 100
 
   attr_accessor :width, :height
@@ -22,7 +22,7 @@ class GAPolygon
     @source_image = Magick::Image.read(file).first
     @width = @source_image.columns
     @height = @source_image.rows
-    @candidates = Array.new(POPULATION) { Candidate.new }
+    @candidates = Array.new(POPULATION) { Candidate.new { rand } }
     @count = 0
     @start_time = formatted_time_now
     setup_next_iteration

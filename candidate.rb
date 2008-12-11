@@ -39,7 +39,7 @@ class Candidate
     seed = (rand * @genestring.size).to_i
     20.times do |x|
       gene_to_mutate = (seed + x) % @genestring.size
-      @genestring[gene_to_mutate] += (rand * 0.05) - 0.025
+      @genestring[gene_to_mutate] += (rand * 0.1) - 0.05
       @genestring[gene_to_mutate].ensure_bound(0.0, 1.0)
     end
     self
@@ -51,13 +51,23 @@ class Candidate
       glColor4f(polystring[0], polystring[1], polystring[2], polystring[3] / 2)
       glBegin(GL_POLYGON)
       polystring[4..-1].each_slice(VERTEX_COUNT * 2) do |vs|
-        vs.each_slice(2) do |xy|
-        	glVertex(xy[0] * 2.0 - 1.0, xy[1] * 2.0 - 1.0)
+        cursor = nil
+        vs.each_slice(2) do |point|
+          if cursor.nil?
+            cursor = point
+          else
+            cursor[0] += gene_to_screen(point[0]) * 0.1
+            cursor[1] += gene_to_screen(point[1]) * 0.1
+          end
+      	  glVertex(gene_to_screen(cursor[0]), gene_to_screen(cursor[1]))
         end
       end
     	glEnd
     end
   end
   
+  def gene_to_screen(gene)
+    gene * 2.0 - 1.0
+  end
 end
   
