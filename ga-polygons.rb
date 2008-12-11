@@ -12,7 +12,8 @@ end
 
 class GAPolygon
 
-  POPULATION = 50
+  POPULATION = 20
+  NUMBER_TO_KEEP = 2
 
   attr_accessor :width, :height
 
@@ -43,7 +44,7 @@ class GAPolygon
   end
 
   def difference
-    raster_image.difference(@source_image)[1]
+    raster_image.difference(@source_image)[0]
   end	
   
   def difference_for(c)
@@ -54,7 +55,7 @@ class GAPolygon
   def finish_iteration
     @candidates = @candidates.sort_by {|c| c.difference }
     @count += 1
-    puts "#{@count} :: #{@candidates.first.difference} :: #{@candidates.size}" if @count % 1 == 0
+    puts "#{@count} :: #{@candidates.first.difference} :: #{@candidates.size}" if @count % 10 == 0
     write if @count % 1000 == 0
     @candidates.first.draw
     glFlush
@@ -70,7 +71,7 @@ class GAPolygon
       candidates << Candidate.procreate(@candidates[x], @candidates[y])
     end
     # Allow first few to be cloned to the next generation
-    5.times { |x| candidates << @candidates[x] }
+    NUMBER_TO_KEEP.times { |x| candidates << @candidates[x] }
     @candidates = candidates
   end
   

@@ -23,7 +23,7 @@ class Candidate
     start = ((rand * mum.genestring.size).to_i / (POLYGON_LENGTH*2)).to_i * POLYGON_LENGTH
     genes[start,genes.size/2] = dad.genestring[start,genes.size/2]
     baby = Candidate.new(genes)
-      1.times { baby.mutate! }
+      10.times { baby.mutate! }
     baby
   end
     
