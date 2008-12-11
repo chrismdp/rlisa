@@ -1,7 +1,6 @@
 require 'opengl'
 include Gl,Glu,Glut
 
-require 'polygon'
 require 'candidate'
 
 begin
@@ -13,8 +12,7 @@ end
 
 class GAPolygon
 
-  CHILDREN_COUNT = 15
-  PARENT_COUNT = 5
+  POPULATION = 50
 
   attr_accessor :width, :height
 
@@ -22,7 +20,7 @@ class GAPolygon
     @source_image = Magick::Image.read(file).first
     @width = @source_image.columns
     @height = @source_image.rows
-    @candidates = Array.new(PARENT_COUNT) { Candidate.new }
+    @candidates = Array.new(POPULATION) { Candidate.new }
     @displayed_candidate = @candidate
     @count = 0
     @start_time = Time.now.utc.to_i
@@ -32,16 +30,10 @@ class GAPolygon
   def raster_image
     pixels = glReadPixels(0, 0, @width, @height, GL_RGBA, GL_UNSIGNED_SHORT)
 
-  	image = Magick::Image.new(@width, @height)
-  	image.import_pixels(0, 0, @width, @height, "RGBA", pixels,Magick::ShortPixel)
-  	image.flip!
-    image
-  end
-
-  def draw(c)
-  	glClear(GL_COLOR_BUFFER_BIT)
-    c.draw
-    glFlush
+  	@image ||= Magick::Image.new(@width, @height)
+  	@image.import_pixels(0, 0, @width, @height, "RGBA", pixels, Magick::ShortPixel)
+  	@image.flip!
+    @image
   end
 
   def write
@@ -55,31 +47,36 @@ class GAPolygon
   end	
   
   def difference_for(c)
-    draw(c)
+    c.draw
     difference
   end
   
   def finish_iteration
-    sorted = @candidates.sort_by {|c| c.difference }
-    @candidates = sorted[0..PARENT_COUNT-1]
-    @candidates << sorted[8] # Pick something bad also, just in case
+    @candidates = @candidates.sort_by {|c| c.difference }
     @count += 1
-    puts "#{@count} :: #{sorted.first.difference}" if @count % 100 == 0
+    puts "#{@count} :: #{@candidates.first.difference} :: #{@candidates.size}" if @count % 1 == 0
     write if @count % 1000 == 0
+    @candidates.first.draw
+    glFlush
   end
   
   def setup_next_iteration
     idx = 0
-    while @candidates.size < CHILDREN_COUNT do
-      idx += 1
-      @candidates << @candidates[idx % PARENT_COUNT].mutation!
+    size = @candidates.size
+    candidates = []
+    POPULATION.times do
+      x = (Math.log(rand*0.5+1.0) * size).to_i
+      y = (Math.log(rand*0.5+1.0) * size).to_i
+      candidates << Candidate.procreate(@candidates[x], @candidates[y])
     end
-    # @candidates.each {|c| c.mutate! }
+    # Allow first to be cloned to the next generation
+    candidates << @candidates[0]
+    @candidates = candidates
   end
   
   def iterate
     done_something = false
-    @candidates.each do |c|
+    @candidates.each_with_index do |c, i|
       if c.difference.nil?
         c.difference = difference_for(c)
         done_something = true
@@ -105,8 +102,6 @@ keyboard = lambda do |key, x, y|
 	case (key)
 		when ?\e
   		exit(0);
-  	when ?w
-  	  @ga.write
 	end
 end
 
