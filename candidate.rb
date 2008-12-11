@@ -39,7 +39,7 @@ class Candidate
     seed = (rand * @genestring.size).to_i
     20.times do |x|
       gene_to_mutate = (seed + x) % @genestring.size
-      @genestring[gene_to_mutate] += (rand * 0.1) - 0.05
+      @genestring[gene_to_mutate] += (rand * 0.2) - 0.1
       @genestring[gene_to_mutate].ensure_bound(0.0, 1.0)
     end
     self
@@ -48,7 +48,7 @@ class Candidate
   def draw
   	glClear(GL_COLOR_BUFFER_BIT)
     @genestring.each_slice(POLYGON_LENGTH) do |polystring|
-      glColor4f(polystring[0], polystring[1], polystring[2], polystring[3] / 2)
+      glColor4f(polystring[0], polystring[1], polystring[2], polystring[3] / 3)
       glBegin(GL_POLYGON)
       polystring[4..-1].each_slice(VERTEX_COUNT * 2) do |vs|
         cursor = nil

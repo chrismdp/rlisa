@@ -1,12 +1,29 @@
-Code is MIT-licensed. 
+=RLISA=
 
-Idea shamelessly stolen from:
+rLisa is an image approximation engine written in ruby. It uses polygons to render images and genetic algorithms to successively improve the approximation of the target image.
+
+The idea is shamelessly stolen from:
 
 http://rogeralsing.com/2008/12/07/genetic-programming-evolution-of-mona-lisa/
+
+Code is MIT-licensed. 
+
+=RUNNING=
 
 Prerequisite: OpenGL
 $ sudo gem install ruby-opengl
 
+You'll also need a copy of RMagick installed.
+
 To run:
 
 $ ruby -rubygems ga-polygons.rb <target image>
+
+=WISHLIST=
+
+* Polygon ordering genes
+* Multiple side polygon genes
+* Better fitness function using fourier transforms?
+* Better factoring of genetic algorithms from rendering
+* Ability to plug in fitness functions and breeding functions
+* Dominant/Recessive genes?

@@ -74,8 +74,8 @@ class GAPolygon
     size = @candidates.size
     candidates = []
     POPULATION.times do
-      x = (Math.log(rand+1.0) * size).to_i
-      y = (Math.log(rand+1.0) * size).to_i
+      x = (Math.log(rand/2+1.0) * size).to_i
+      y = (Math.log(rand/2+1.0) * size).to_i
       candidates << Candidate.procreate(@candidates[x], @candidates[y])
     end
     # Allow first few to be cloned to the next generation
