@@ -12,7 +12,7 @@ end
 
 class GAPolygon
 
-  POPULATION = 20
+  POPULATION = 50
   NUMBER_TO_KEEP = 2
 
   attr_accessor :width, :height
@@ -66,8 +66,8 @@ class GAPolygon
     size = @candidates.size
     candidates = []
     POPULATION.times do
-      x = (Math.log(rand*0.5+1.0) * size).to_i
-      y = (Math.log(rand*0.5+1.0) * size).to_i
+      x = (Math.log(rand*0.5+1.0) * size/1.5).to_i
+      y = (Math.log(rand*0.5+1.0) * size/1.5).to_i
       candidates << Candidate.procreate(@candidates[x], @candidates[y])
     end
     # Allow first few to be cloned to the next generation
