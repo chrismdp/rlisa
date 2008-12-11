@@ -69,8 +69,8 @@ class GAPolygon
       y = (Math.log(rand*0.5+1.0) * size).to_i
       candidates << Candidate.procreate(@candidates[x], @candidates[y])
     end
-    # Allow first to be cloned to the next generation
-    candidates << @candidates[0]
+    # Allow first few to be cloned to the next generation
+    5.times { |x| candidates << @candidates[x] }
     @candidates = candidates
   end
   
