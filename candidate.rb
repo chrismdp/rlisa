@@ -14,31 +14,37 @@ class Candidate
   POLYGONS = 50
   VERTEX_COUNT = 8
   POLYGON_LENGTH = VERTEX_COUNT * 2 + 4
+  GENESTRING_LENGTH = POLYGON_LENGTH * POLYGONS
   
   def initialize(genestring = nil, &block)
     block ||= lambda { 0.5 }
     if genestring
       @genestring = genestring.dup
     else 
-      @genestring = Array.new(POLYGONS * POLYGON_LENGTH, &block)
+      @genestring = Array.new(GENESTRING_LENGTH, &block)
     end
   end
   
+  def self.random_polygon_start(percentage_max = 1.0)
+    ((rand * GENESTRING_LENGTH).to_i / (POLYGON_LENGTH*(1.0/percentage_max))).to_i * POLYGON_LENGTH
+  end
+
   def self.procreate(mum, dad)
     genes = []
     genes = mum.genestring.dup
-    start = ((rand * mum.genestring.size).to_i / (POLYGON_LENGTH*2)).to_i * POLYGON_LENGTH
-    genes[start,genes.size/2] = dad.genestring[start,genes.size/2]
+    start_mum = random_polygon_start(0.5)
+    start_dad = random_polygon_start(0.5)
+    genes[start_mum, GENESTRING_LENGTH/2] = dad.genestring[start_dad, GENESTRING_LENGTH/2]
     baby = Candidate.new(genes)
-      2.times { baby.mutate! }
+      1.times { baby.mutate! }
     baby
   end
     
   def mutate!
     @difference = nil
-    seed = (rand * @genestring.size).to_i
-    20.times do |x|
-      gene_to_mutate = (seed + x) % @genestring.size
+    seed = Candidate.random_polygon_start
+    POLYGON_LENGTH.times do |x|
+      gene_to_mutate = (seed + x) % GENESTRING_LENGTH
       @genestring[gene_to_mutate] += (rand * 0.2) - 0.1
       @genestring[gene_to_mutate].ensure_bound(0.0, 1.0)
     end
@@ -48,7 +54,7 @@ class Candidate
   def draw
   	glClear(GL_COLOR_BUFFER_BIT)
     @genestring.each_slice(POLYGON_LENGTH) do |polystring|
-      glColor4f(polystring[0], polystring[1], polystring[2], polystring[3] / 3)
+      glColor4f(polystring[0], polystring[1], polystring[2], polystring[3])
       glBegin(GL_POLYGON)
       polystring[4..-1].each_slice(VERTEX_COUNT * 2) do |vs|
         cursor = nil
