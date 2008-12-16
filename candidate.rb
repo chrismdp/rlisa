@@ -11,8 +11,8 @@ class Candidate
   attr :difference, true
   attr :genestring
   
-  POLYGONS = 50
-  VERTEX_COUNT = 8
+  POLYGONS = 250
+  VERTEX_COUNT = 3
   POLYGON_LENGTH = VERTEX_COUNT * 2 + 4
   GENESTRING_LENGTH = POLYGON_LENGTH * POLYGONS
   
@@ -32,9 +32,11 @@ class Candidate
   def self.procreate(mum, dad)
     genes = []
     genes = mum.genestring.dup
-    start_mum = random_polygon_start(0.5)
-    start_dad = random_polygon_start(0.5)
-    genes[start_mum, GENESTRING_LENGTH/2] = dad.genestring[start_dad, GENESTRING_LENGTH/2]
+    percentage_to_xfer = rand
+    polygons_to_xfer = (percentage_to_xfer * POLYGONS).to_i * POLYGON_LENGTH
+    start_mum = random_polygon_start(1.0 - percentage_to_xfer)
+    start_dad = random_polygon_start(1.0 - percentage_to_xfer)
+    genes[start_mum, polygons_to_xfer] = dad.genestring[start_dad, polygons_to_xfer]
     baby = Candidate.new(genes)
       1.times { baby.mutate! }
     baby

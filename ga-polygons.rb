@@ -13,7 +13,7 @@ end
 class GAPolygon
 
   POPULATION = 50
-  NUMBER_TO_KEEP = 5
+  NUMBER_TO_KEEP = 2
   NUKE_EVERY = 100
 
   attr_accessor :width, :height
