@@ -13,7 +13,7 @@ end
 class GAPolygon
 
   POPULATION = 50
-  NUMBER_TO_KEEP = 2
+  NUMBER_TO_KEEP = 5
   NUKE_EVERY = 100
 
   attr_accessor :width, :height
@@ -29,10 +29,10 @@ class GAPolygon
   end
   
   def raster_image
-    pixels = glReadPixels(0, 0, @width, @height, GL_RGBA, GL_UNSIGNED_SHORT)
+    pixels = glReadPixels(0, 0, @width, @height, GL_RGB, GL_UNSIGNED_SHORT)
 
   	@image ||= Magick::Image.new(@width, @height)
-  	@image.import_pixels(0, 0, @width, @height, "RGBA", pixels, Magick::ShortPixel)
+  	@image.import_pixels(0, 0, @width, @height, "RGB", pixels, Magick::ShortPixel)
   	@image.flip!
     @image
   end
@@ -64,7 +64,7 @@ class GAPolygon
   end
 
   def nuke!
-    Range.new((@candidates.size*0.75).to_i, @candidates.size).each do |x|
+    Range.new((@candidates.size*0.75).to_i, @candidates.size - 1).each do |x|
       @candidates[x] = Candidate.new { rand }
     end
   end
@@ -73,7 +73,7 @@ class GAPolygon
     idx = 0
     size = @candidates.size
     candidates = []
-    POPULATION.times do
+    (POPULATION - NUMBER_TO_KEEP).times do
       x = (Math.log(rand/2+1.0) * size).to_i
       y = (Math.log(rand/2+1.0) * size).to_i
       candidates << Candidate.procreate(@candidates[x], @candidates[y])
@@ -84,18 +84,11 @@ class GAPolygon
   end
   
   def iterate
-    done_something = false
     @candidates.each_with_index do |c, i|
-      if c.difference.nil?
-        c.difference = difference_for(c)
-        done_something = true
-        break
-      end
+      c.difference = difference_for(c) if c.difference.nil?
     end
-    unless done_something
-      finish_iteration
-      setup_next_iteration
-    end
+    finish_iteration
+    setup_next_iteration
   end
   
   def formatted_time_now
@@ -107,8 +100,6 @@ end
 @ga = GAPolygon.new(ARGV[0])
   
 display = lambda do
-  glEnable(GL_BLEND)
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);	
   @ga.iterate
 end
 
@@ -116,6 +107,8 @@ keyboard = lambda do |key, x, y|
 	case (key)
 		when ?\e
   		exit(0);
+		when ?w
+  		@ga.write;
 	end
 end
 
@@ -127,6 +120,8 @@ glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_ALPHA)
 glutInitWindowSize(@ga.width, @ga.height)
 glutInitWindowPosition(100, 100)
 glutCreateWindow($0)
+glEnable(GL_BLEND)
+glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);	
 glutDisplayFunc(display)
 glutKeyboardFunc(keyboard)
 glutIdleFunc(display)
