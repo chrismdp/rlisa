@@ -55,7 +55,7 @@ class Candidate
   def draw
   	glClear(GL_COLOR_BUFFER_BIT)
     @genestring.each_slice(POLYGON_LENGTH) do |polystring|
-      glColor4f(polystring[0], polystring[1], polystring[2], polystring[3]*0.1)
+      glColor4f(polystring[0], polystring[1], polystring[2], polystring[3])
       glBegin(GL_POLYGON)
       polystring[4..-1].each_slice(VERTEX_COUNT * 2) do |vs|
         raise vs.inspect if vs.max > 1.0
@@ -64,8 +64,8 @@ class Candidate
           if cursor.nil?
             cursor = point
           else
-            cursor[0] += gene_to_screen(point[0]) * 0.25
-            cursor[1] += gene_to_screen(point[1]) * 0.25
+            cursor[0] += gene_to_screen(point[0])
+            cursor[1] += gene_to_screen(point[1])
           end
       	  glVertex(gene_to_screen(cursor[0]), gene_to_screen(cursor[1]))
         end
