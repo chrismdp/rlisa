@@ -17,6 +17,7 @@ class GAPolygon
   NUKE_EVERY = 100
 
   attr_accessor :width, :height
+  attr :flush, true
 
   def initialize(file)
     @source_image = Magick::Image.read(file).first
@@ -49,6 +50,7 @@ class GAPolygon
   
   def difference_for(c)
     c.draw
+    glFlush if @flush
     difference
   end
   
@@ -58,13 +60,13 @@ class GAPolygon
 
     nuke! if @count > 0 && @count % NUKE_EVERY == 0
     puts "#{@count} :: #{@candidates.first.difference} :: #{@candidates.size}" if @count % 10 == 0
-    write if @count % 1000 == 0
     @candidates.first.draw
     glFlush
+    write if @count % 1000 == 0
   end
 
   def nuke!
-    Range.new((@candidates.size*0.75).to_i, @candidates.size - 1).each do |x|
+    Range.new((@candidates.size*0.75).to_i, @candidates.size).each do |x|
       @candidates[x] = Candidate.new { rand }
     end
   end
@@ -106,9 +108,11 @@ end
 keyboard = lambda do |key, x, y|
 	case (key)
 		when ?\e
-  		exit(0);
+  		exit(0)
 		when ?w
-  		@ga.write;
+  		@ga.write
+		when ?r
+  		@ga.flush = @ga.flush ? false : true
 	end
 end
 
